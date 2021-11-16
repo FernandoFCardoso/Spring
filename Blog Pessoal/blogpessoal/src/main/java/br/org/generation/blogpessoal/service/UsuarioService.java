@@ -31,7 +31,8 @@ public class UsuarioService {
 
 	public Optional<Usuario> atualizarUsuario(Usuario usuario) {
 
-		if (usuarioRepository.findById(usuario.getId()).isPresent()) {
+		if (usuarioRepository.findById(usuario.getId()).isPresent() && 
+				!usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent()) {
 			
 			usuario.setSenha(criptografarSenha(usuario.getSenha()));
 
@@ -47,11 +48,12 @@ public class UsuarioService {
 
 		if (usuario.isPresent()) {
 			if (compararSenhas(usuarioLogin.get().getSenha(), usuario.get().getSenha())) {
-
+				
+				String token = gerarBasicToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha());
 				usuarioLogin.get().setId(usuario.get().getId());				
 				usuarioLogin.get().setNome(usuario.get().getNome());
 				usuarioLogin.get().setSenha(usuario.get().getSenha());
-				usuarioLogin.get().setToken(gerarBasicToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha()));
+				usuarioLogin.get().setToken(token);
 
 				return usuarioLogin;
 
